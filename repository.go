@@ -21,15 +21,16 @@ func (d *defaultRepository) SetMarshaler(marshaler SessionMarshaler) {
 }
 
 func (d *defaultRepository) Save(session Session) error {
-	if marshal, err := d.marshaler.Marshal(session); nil != err {
+	marshal, err := d.marshaler.Marshal(session)
+	if nil != err {
 		return err
-	} else {
-		set := d.redisClient.Set(context.Background(), session.Key(), marshal, session.ExpiresIn())
-		if set.Err() != nil {
-			return set.Err()
-		}
-		return nil
 	}
+	// 기본 만료 시간 정해서 설정
+	set := d.redisClient.Set(context.Background(), session.Key(), marshal, session.ExpiresIn())
+	if set.Err() != nil {
+		return set.Err()
+	}
+	return nil
 }
 
 func (d *defaultRepository) Load(id string) (Session, error) {

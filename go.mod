@@ -1,4 +1,4 @@
-module github.com/ezaurum/session-repository
+module github.com/ezaurum/can
 
 go 1.15
 

@@ -9,12 +9,12 @@ import (
 )
 
 type TestSession struct {
-	ID               string        `json:"id"`
-	ExpiresInSeconds time.Duration `json:"expires_in"`
+	ID                string        `json:"id"`
+	ExpiresInDuration time.Duration `json:"expires_in"`
 }
 
 func (ts TestSession) ExpiresIn() time.Duration {
-	return ts.ExpiresInSeconds
+	return ts.ExpiresInDuration
 }
 
 func (ts TestSession) Key() string {
@@ -63,8 +63,25 @@ func TestGet(t *testing.T) {
 	})
 	repository := New(client, &TestMarshaler{})
 	ts := TestSession{
-		ID:               "test",
-		ExpiresInSeconds: time.Minute,
+		ID:                "test",
+		ExpiresInDuration: time.Minute,
+	}
+	assert.NoError(t, repository.Save(ts))
+	load, err := repository.Load("test")
+	assert.NoError(t, err)
+	assert.NotNil(t, load)
+	assert.Equal(t, "test", load.Key())
+	assert.Equal(t, time.Minute, load.ExpiresIn())
+}
+
+func TestGroupGet(t *testing.T) {
+	client := redis.NewClient(&redis.Options{
+		Addr: "localhost:13789",
+	})
+	repository := New(client, &TestMarshaler{})
+	ts := TestSession{
+		ID:                "test",
+		ExpiresInDuration: time.Minute,
 	}
 	assert.NoError(t, repository.Save(ts))
 	load, err := repository.Load("test")

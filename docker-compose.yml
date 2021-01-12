@@ -1,0 +1,12 @@
+# 개발용
+# 도커 컴포즈로 실행
+# docker-compose -f dev-stack.yml up
+
+version: "3.7"
+services:
+  redis:
+    image: redis
+    ports:
+      - 13789:6379
+    expose:
+      - 6379

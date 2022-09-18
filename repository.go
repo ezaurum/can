@@ -69,10 +69,12 @@ func New(redisClient *redis.Client, m SessionMarshaler) Repository {
 	expiredSub := repository.redisClient.PSubscribe(context.Background(), "__keyevent@*__:expired")
 	ch := expiredSub.Channel()
 	go func() {
-		select {
-		case msg := <-ch:
-			if repository.expiredFunction != nil {
-				repository.expiredFunction(msg.Payload)
+		for {
+			select {
+			case msg := <-ch:
+				if repository.expiredFunction != nil {
+					repository.expiredFunction(msg.Payload)
+				}
 			}
 		}
 	}()

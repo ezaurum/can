@@ -1,4 +1,4 @@
-module can
+module ezaurum.com/can
 
 go 1.19
 

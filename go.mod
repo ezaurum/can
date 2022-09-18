@@ -1,4 +1,4 @@
-module ezaurum.com/can
+module github.com/ezaurum/can
 
 go 1.19
 

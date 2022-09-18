@@ -4,5 +4,5 @@
 ```shell
 docker-compose up -d
 go test .
-docker run --network="host" -it --rm redis redis-cli -h localhost -p 13789
+docker run --network="dev_can_default" -it --rm redis redis-cli -h redis 
 ```

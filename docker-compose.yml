@@ -3,10 +3,20 @@
 # docker-compose -f dev-stack.yml up
 
 version: "3.7"
+networks:
+  default:
+    name: dev_can_default
 services:
   redis:
-    image: redis
+    image: redis:5
     ports:
       - 13789:6379
     expose:
       - 6379
+    networks:
+      - default
+    volumes:
+      - ./redis:/usr/local/etc/redis
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf

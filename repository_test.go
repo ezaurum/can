@@ -137,3 +137,55 @@ func TestExpire(t *testing.T) {
 	assert.Equal(t, true, expired)
 	time.Sleep(time.Second * 1)
 }
+
+func TestExpire2(t *testing.T) {
+	client := redis.NewClient(&redis.Options{
+		Addr: "localhost:13789",
+	})
+	repository := New(client, &TestMarshaler{})
+	id := "test-expire"
+	id0 := "test-expire0"
+	ts := TestSession{
+		ID:                id,
+		ExpiresInDuration: time.Second * 2,
+	}
+	expired := false
+	expired0 := false
+	repository.OnExpired(func(key string) {
+		if key == id {
+			expired = true
+		} else if key == id0 {
+			expired0 = true
+		}
+	})
+	assert.NoError(t, repository.Save(ts))
+	assert.NoError(t, repository.Save(TestSession{
+		ID:                id0,
+		ExpiresInDuration: time.Second,
+	}))
+	load, err := repository.Load(id)
+	assert.NoError(t, err)
+	assert.NotNil(t, load)
+	assert.Equal(t, id, load.Key())
+	assert.Equal(t, time.Second*2, load.ExpiresIn())
+
+	time.Sleep(time.Second * 1)
+	_ = repository.Save(TestSession{
+		ID:                id,
+		ExpiresInDuration: time.Second * 2,
+	})
+	time.Sleep(time.Second * 1)
+	load0, err0 := repository.Load(id)
+	assert.NoError(t, err0)
+	assert.NotNil(t, load0)
+	assert.Equal(t, id, load0.Key())
+	assert.Equal(t, time.Second*2, load0.ExpiresIn())
+	time.Sleep(time.Second * 3)
+
+	_, err1 := repository.Load(id)
+	assert.Error(t, err1)
+
+	assert.Equal(t, true, expired)
+	assert.Equal(t, true, expired0)
+	time.Sleep(time.Second * 1)
+}
